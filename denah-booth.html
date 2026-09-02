@@ -6,30 +6,44 @@
 <title>Menuju Booth</title>
 <style>
   :root{
-    --bg:#ffffff; --ink:#1a1a1a; --accent:#c8471b; --line:#d8d2c8;
+    --blue:#5170ff;
+    --beige:#fff1d1;
+    --ink:#2b2b3d;
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; background:var(--bg); color:var(--ink);
+    margin:0; background:#ffffff; color:var(--ink);
     font-family: Arial, "Segoe UI", sans-serif;
     display:flex; justify-content:center;
-    padding:18px 14px 34px;
   }
-  .wrap{ width:100%; max-width:480px; }
-  .brand{ text-align:center; margin-bottom:14px; }
-  .brand .fair{ font-size:14px; color:#6b675f; margin:0 0 2px; }
-  .brand h1{ font-size:26px; margin:0; font-weight:800; letter-spacing:-0.3px; }
+  .wrap{ width:100%; max-width:480px; padding:20px 16px 40px; }
 
-  .distance-card{
-    background:var(--accent); color:#fff; border-radius:16px;
-    padding:20px 18px; text-align:center; margin-bottom:16px;
+  .promo-card{
+    background:var(--blue); color:#fff;
+    border-radius:28px; padding:24px 22px 30px;
+    margin-bottom:18px;
   }
-  .distance-card .num{ font-size:56px; font-weight:800; line-height:1; }
-  .distance-card .lbl{ font-size:20px; font-weight:600; margin-top:4px; }
+  .top-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .logo{ height:28px; display:block; }
+  .booth-code{ font-size:24px; font-weight:800; letter-spacing:0.3px; }
+
+  .promo-headline{
+    font-size:58px; font-weight:900; line-height:0.95;
+    letter-spacing:-1px; margin:0 0 2px;
+  }
+  .promo-subtitle{
+    font-size:30px; font-weight:800; line-height:1.1;
+    margin:0;
+  }
 
   .map-card{
-    border:2px solid var(--line); border-radius:16px;
-    overflow:hidden; margin-bottom:8px; background:#fff; position:relative;
+    border-radius:20px; overflow:hidden; margin-bottom:22px;
+    background:#fff; position:relative;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border:1px solid #eee;
   }
   .map-wrap{
     position:relative; width:100%; aspect-ratio:1000/294;
@@ -50,11 +64,11 @@
   }
   @keyframes march{ to { stroke-dashoffset:-24; } }
 
-  .you-ring{ fill:none; stroke:var(--accent); stroke-width:4; animation: ring 1.6s ease-out infinite; }
+  .you-ring{ fill:none; stroke:var(--blue); stroke-width:4; animation: ring 1.6s ease-out infinite; }
   @keyframes ring{ 0%{ transform:scale(0.4); opacity:0.9; } 100%{ transform:scale(3.2); opacity:0; } }
-  .you-dot{ fill:var(--accent); stroke:#fff; stroke-width:3; }
+  .you-dot{ fill:var(--blue); stroke:#fff; stroke-width:3; }
   .booth-star{ fill:#1a8a5e; stroke:#fff; stroke-width:3; }
-  .step-badge{ fill:#1a1a1a; stroke:#fff; stroke-width:3; }
+  .step-badge{ fill:var(--blue); stroke:#fff; stroke-width:3; }
   .step-badge-num{
     fill:#fff; font-family:Arial, sans-serif; font-weight:800;
     font-size:15px; text-anchor:middle; dominant-baseline:central;
@@ -62,46 +76,44 @@
 
   .zoom-ctrl{ position:absolute; right:10px; bottom:10px; display:flex; flex-direction:column; gap:6px; z-index:5; }
   .zoom-ctrl button{
-    width:38px; height:38px; border-radius:10px; border:none;
-    background:rgba(26,26,26,0.85); color:#fff; font-size:20px; font-weight:800;
+    width:40px; height:40px; border-radius:12px; border:none;
+    background:var(--blue); color:#fff; font-size:22px; font-weight:800;
     display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
   }
-  .zoom-hint{ text-align:center; color:#8a857a; font-size:12.5px; margin:0 0 16px; }
 
-  .steps{ display:flex; flex-direction:column; gap:14px; margin-bottom:20px; }
-  .step{ display:flex; align-items:center; gap:16px; background:#f7f5f0; border-radius:14px; padding:16px; }
-  .step-num{
-    width:40px; height:40px; flex-shrink:0; border-radius:50%;
-    background:var(--accent); color:#fff; font-size:20px; font-weight:800;
-    display:flex; align-items:center; justify-content:center;
+  .distance-block{ text-align:center; margin-bottom:24px; }
+  .distance-block .dist-row{
+    display:flex; align-items:baseline; justify-content:center; gap:10px;
   }
-  .step-txt{ font-size:19px; font-weight:600; line-height:1.35; }
+  .distance-block .dist-num{ font-size:72px; font-weight:900; line-height:1; letter-spacing:-1px; color:var(--blue); }
+  .distance-block .dist-unit{ font-size:28px; font-weight:800; letter-spacing:0.5px; color:var(--blue); }
+  .distance-block .dist-sub{ font-size:17px; font-weight:600; color:#8b8b9a; margin-top:4px; }
 
-  .help-btn{
-    display:block; width:100%; background:#1a1a1a; color:#fff; border:none;
-    border-radius:14px; padding:18px; font-size:19px; font-weight:700;
-    text-align:center; text-decoration:none;
+  .steps{ display:flex; flex-direction:column; gap:14px; }
+  .step{
+    display:flex; align-items:center; gap:16px;
+    background:var(--beige); border-radius:999px;
+    padding:16px 22px; color:var(--ink);
   }
-  .help-note{ text-align:center; color:#8a857a; font-size:14px; margin-top:10px; }
+  .step-num{ font-size:22px; font-weight:900; flex-shrink:0; width:20px; color:var(--blue); }
+  .step-txt{ font-size:18px; font-weight:700; line-height:1.3; }
 
-  .state-msg{
-    text-align:center; padding:40px 20px; font-size:16px; color:#6b675f;
-  }
+  .state-msg{ text-align:center; padding:60px 20px; font-size:16px; color:#8b8b9a; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="brand">
-    <p class="fair" id="fairLabel">Memuat rute&hellip;</p>
-    <h1 id="boothTitle">Menuju Booth</h1>
+  <div class="promo-card">
+    <div class="top-row">
+      <img class="logo" src="https://i.ibb.co.com/Cp4cqYvX/Elitech-white.png" alt="Elitech"/>
+      <div class="booth-code" id="boothCode">&nbsp;</div>
+    </div>
+    <div class="promo-headline" id="promoHeadline">FREE</div>
+    <div class="promo-subtitle" id="promoSubtitle">Medical Check Up</div>
   </div>
 
   <div id="content" style="display:none;">
-    <div class="distance-card">
-      <div class="num" id="distNum">&ndash;</div>
-      <div class="lbl" id="distLbl">menghitung jarak&hellip;</div>
-    </div>
-
     <div class="map-card">
       <div class="map-wrap" id="mapWrap">
         <div class="map-stage" id="mapStage">
@@ -114,12 +126,15 @@
         </div>
       </div>
     </div>
-    <p class="zoom-hint">Cubit layar atau tekan +/&minus; untuk perbesar peta</p>
+
+    <div class="distance-block">
+      <div class="dist-row">
+        <span class="dist-num" id="distNum">60</span><span class="dist-unit">METER</span>
+      </div>
+      <div class="dist-sub" id="distSub">Jalan santai &asymp; 2 menit</div>
+    </div>
 
     <div class="steps" id="stepsList"></div>
-
-    <a class="help-btn" href="#">Tunjukkan ini ke petugas terdekat</a>
-    <p class="help-note">Petugas berseragam siap membantu di setiap pintu masuk</p>
   </div>
 
   <div id="loadingMsg" class="state-msg">Menyiapkan peta rute&hellip;</div>
@@ -144,9 +159,9 @@ var FALLBACK = {
       jarak_meter:60, estimasi_menit:2, gambar:"ENTR-H5.png"
     },
     langkah: [
-      "Masuk dari Entrance Gate Hall 5, lalu berjalan lurus mengikuti garis kuning",
-      "Terus lurus melewati Hall 6 sampai memasuki Hall 7",
-      "Booth Elitech (7193-A) langsung terlihat di sebelah kanan, dekat Registrasi Hall 7"
+      "Dari Entrance Gate Hall 5, lurus menyusuri lorong utama",
+      "Lanjut lurus melewati deretan booth Taiwan/China",
+      "Booth 7193-A (Elitech) ada di sisi kanan, Hall 7"
     ]
   },
   "ENTR-H9|7193-A": {
@@ -157,9 +172,9 @@ var FALLBACK = {
       jarak_meter:55, estimasi_menit:2, gambar:"ENTR-H9.png"
     },
     langkah: [
-      "Masuk dari Entrance Gate Hall 9, lalu berjalan lurus mengikuti garis kuning",
-      "Terus lurus melewati Hall 8 sampai memasuki Hall 7",
-      "Booth Elitech (7193-A) langsung terlihat di sebelah kiri, dekat Registrasi Hall 7"
+      "Dari Entrance Gate Hall 9, lurus menyusuri lorong utama",
+      "Lanjut lurus melewati deretan booth Korea/China",
+      "Booth 7193-A (Elitech) ada di sisi kiri, Hall 7"
     ]
   }
 };
@@ -169,12 +184,23 @@ function qs(name){
   return m;
 }
 
+function resolveImg(gambar){
+  // kalau kolom 'gambar' di sheet sudah berupa URL penuh (mis. link Google Drive),
+  // pakai langsung. Kalau cuma nama file, gabung dengan folder assets/ lokal.
+  if (/^https?:\/\//i.test(gambar)) return gambar;
+  return ASSET_PATH + gambar;
+}
+
 function render(data){
-  document.getElementById('fairLabel').textContent = "Hospital Expo 2026 \u00b7 " + data.booth.hall;
-  document.getElementById('boothTitle').textContent = "Menuju Booth " + data.booth.nama_perusahaan;
-  document.getElementById('distNum').textContent = data.rute.jarak_meter + " m";
-  document.getElementById('distLbl').textContent = "jalan santai \u2248 " + data.rute.estimasi_menit + " menit";
-  document.getElementById('mapImg').src = ASSET_PATH + data.rute.gambar;
+  document.getElementById('boothCode').textContent = data.booth.kode_booth;
+  // promo_headline / promo_subtitle bisa ditambahkan sebagai kolom opsional
+  // di sheet Booth. Kalau tidak ada, pakai teks default di bawah ini.
+  document.getElementById('promoHeadline').textContent = data.booth.promo_headline || 'FREE';
+  document.getElementById('promoSubtitle').textContent = data.booth.promo_subtitle || 'Medical Check Up';
+
+  document.getElementById('distNum').textContent = data.rute.jarak_meter;
+  document.getElementById('distSub').textContent = "Jalan santai \u2248 " + data.rute.estimasi_menit + " menit";
+  document.getElementById('mapImg').src = resolveImg(data.rute.gambar);
 
   var wp = data.rute.waypoints;
   var d = "M " + wp[0].x + " " + wp[0].y;
