@@ -49,6 +49,11 @@
     position:relative; width:100%; aspect-ratio:1000/294;
     overflow:hidden; touch-action:none; background:#fafaf8;
   }
+  .map-wrap.is-fullscreen{
+    position:fixed; inset:0; width:100vw; height:100vh;
+    aspect-ratio:auto; z-index:999; border-radius:0; background:#111;
+  }
+  .map-wrap.is-fullscreen .map-stage img{ object-fit:contain; }
   .map-stage{
     position:absolute; top:0; left:0; width:100%; height:100%;
     transform-origin:0 0; will-change:transform;
@@ -74,13 +79,20 @@
     font-size:15px; text-anchor:middle; dominant-baseline:central;
   }
 
-  .zoom-ctrl{ position:absolute; right:10px; bottom:10px; display:flex; flex-direction:column; gap:6px; z-index:5; }
+  .zoom-ctrl{ position:absolute; right:10px; bottom:10px; display:flex; flex-direction:column; gap:6px; z-index:1001; }
   .zoom-ctrl button{
     width:40px; height:40px; border-radius:12px; border:none;
-    background:var(--blue); color:#fff; font-size:22px; font-weight:800;
+    background:var(--blue); color:#fff; font-size:20px; font-weight:800;
     display:flex; align-items:center; justify-content:center;
     box-shadow: 0 3px 8px rgba(0,0,0,0.25);
   }
+  .close-fs{
+    position:absolute; top:14px; right:14px; z-index:1001;
+    width:40px; height:40px; border-radius:12px; border:none;
+    background:rgba(0,0,0,0.55); color:#fff; font-size:22px; font-weight:800;
+    display:none; align-items:center; justify-content:center;
+  }
+  .map-wrap.is-fullscreen .close-fs{ display:flex; }
 
   .distance-block{ text-align:center; margin-bottom:24px; }
   .distance-block .dist-row{
@@ -100,7 +112,7 @@
   .step-txt{ font-size:18px; font-weight:700; line-height:1.3; }
 
   .state-msg{ text-align:center; padding:60px 20px; font-size:16px; color:#8b8b9a; }
-</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -120,7 +132,9 @@
           <img id="mapImg" src="" alt="Denah menuju booth"/>
           <svg id="mapSvg" viewBox="0 0 1000 294" preserveAspectRatio="xMidYMid slice"></svg>
         </div>
+        <button class="close-fs" id="closeFs" aria-label="Tutup layar penuh">&times;</button>
         <div class="zoom-ctrl">
+          <button id="expandBtn" aria-label="Perbesar layar penuh">&#10021;</button>
           <button id="zoomIn" aria-label="Perbesar">+</button>
           <button id="zoomOut" aria-label="Perkecil">&minus;</button>
         </div>
@@ -315,6 +329,15 @@ function initZoom(){
     if (e.touches.length < 2) lastDist = null;
     if (e.touches.length === 0) dragging = false;
   });
+
+  document.getElementById('expandBtn').onclick = function(){
+    wrap.classList.add('is-fullscreen');
+    setScale(1);
+  };
+  document.getElementById('closeFs').onclick = function(){
+    wrap.classList.remove('is-fullscreen');
+    setScale(1);
+  };
 
   document.getElementById('zoomIn').onclick = function(){ setScale(scale + 0.5); };
   document.getElementById('zoomOut').onclick = function(){ setScale(scale - 0.5); };
