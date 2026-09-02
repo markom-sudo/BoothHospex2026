@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Menuju Booth</title>
+<style>
+  :root{
+    --bg:#ffffff; --ink:#1a1a1a; --accent:#c8471b; --line:#d8d2c8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family: Arial, "Segoe UI", sans-serif;
+    display:flex; justify-content:center;
+    padding:18px 14px 34px;
+  }
+  .wrap{ width:100%; max-width:480px; }
+  .brand{ text-align:center; margin-bottom:14px; }
+  .brand .fair{ font-size:14px; color:#6b675f; margin:0 0 2px; }
+  .brand h1{ font-size:26px; margin:0; font-weight:800; letter-spacing:-0.3px; }
+
+  .distance-card{
+    background:var(--accent); color:#fff; border-radius:16px;
+    padding:20px 18px; text-align:center; margin-bottom:16px;
+  }
+  .distance-card .num{ font-size:56px; font-weight:800; line-height:1; }
+  .distance-card .lbl{ font-size:20px; font-weight:600; margin-top:4px; }
+
+  .map-card{
+    border:2px solid var(--line); border-radius:16px;
+    overflow:hidden; margin-bottom:8px; background:#fff; position:relative;
+  }
+  .map-wrap{
+    position:relative; width:100%; aspect-ratio:1000/294;
+    overflow:hidden; touch-action:none; background:#fafaf8;
+  }
+  .map-stage{
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    transform-origin:0 0; will-change:transform;
+  }
+  .map-stage img{ display:block; width:100%; height:100%; object-fit:cover; }
+  .map-stage svg{ position:absolute; top:0; left:0; width:100%; height:100%; }
+
+  .route{
+    fill:none; stroke:#ffd23f; stroke-width:10;
+    stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray:4 20; animation: march 1s linear infinite;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.55));
+  }
+  @keyframes march{ to { stroke-dashoffset:-24; } }
+
+  .you-ring{ fill:none; stroke:var(--accent); stroke-width:4; animation: ring 1.6s ease-out infinite; }
+  @keyframes ring{ 0%{ transform:scale(0.4); opacity:0.9; } 100%{ transform:scale(3.2); opacity:0; } }
+  .you-dot{ fill:var(--accent); stroke:#fff; stroke-width:3; }
+  .booth-star{ fill:#1a8a5e; stroke:#fff; stroke-width:3; }
+  .step-badge{ fill:#1a1a1a; stroke:#fff; stroke-width:3; }
+  .step-badge-num{
+    fill:#fff; font-family:Arial, sans-serif; font-weight:800;
+    font-size:15px; text-anchor:middle; dominant-baseline:central;
+  }
+
+  .zoom-ctrl{ position:absolute; right:10px; bottom:10px; display:flex; flex-direction:column; gap:6px; z-index:5; }
+  .zoom-ctrl button{
+    width:38px; height:38px; border-radius:10px; border:none;
+    background:rgba(26,26,26,0.85); color:#fff; font-size:20px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .zoom-hint{ text-align:center; color:#8a857a; font-size:12.5px; margin:0 0 16px; }
+
+  .steps{ display:flex; flex-direction:column; gap:14px; margin-bottom:20px; }
+  .step{ display:flex; align-items:center; gap:16px; background:#f7f5f0; border-radius:14px; padding:16px; }
+  .step-num{
+    width:40px; height:40px; flex-shrink:0; border-radius:50%;
+    background:var(--accent); color:#fff; font-size:20px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step-txt{ font-size:19px; font-weight:600; line-height:1.35; }
+
+  .help-btn{
+    display:block; width:100%; background:#1a1a1a; color:#fff; border:none;
+    border-radius:14px; padding:18px; font-size:19px; font-weight:700;
+    text-align:center; text-decoration:none;
+  }
+  .help-note{ text-align:center; color:#8a857a; font-size:14px; margin-top:10px; }
+
+  .state-msg{
+    text-align:center; padding:40px 20px; font-size:16px; color:#6b675f;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <p class="fair" id="fairLabel">Memuat rute&hellip;</p>
+    <h1 id="boothTitle">Menuju Booth</h1>
+  </div>
+
+  <div id="content" style="display:none;">
+    <div class="distance-card">
+      <div class="num" id="distNum">&ndash;</div>
+      <div class="lbl" id="distLbl">menghitung jarak&hellip;</div>
+    </div>
+
+    <div class="map-card">
+      <div class="map-wrap" id="mapWrap">
+        <div class="map-stage" id="mapStage">
+          <img id="mapImg" src="" alt="Denah menuju booth"/>
+          <svg id="mapSvg" viewBox="0 0 1000 294" preserveAspectRatio="xMidYMid slice"></svg>
+        </div>
+        <div class="zoom-ctrl">
+          <button id="zoomIn" aria-label="Perbesar">+</button>
+          <button id="zoomOut" aria-label="Perkecil">&minus;</button>
+        </div>
+      </div>
+    </div>
+    <p class="zoom-hint">Cubit layar atau tekan +/&minus; untuk perbesar peta</p>
+
+    <div class="steps" id="stepsList"></div>
+
+    <a class="help-btn" href="#">Tunjukkan ini ke petugas terdekat</a>
+    <p class="help-note">Petugas berseragam siap membantu di setiap pintu masuk</p>
+  </div>
+
+  <div id="loadingMsg" class="state-msg">Menyiapkan peta rute&hellip;</div>
+  <div id="errorMsg" class="state-msg" style="display:none;"></div>
+</div>
+
+<script>
+// =====================================================================
+// GANTI dengan URL Web App Apps Script Anda setelah proses Deploy
+// =====================================================================
+var API_URL = "GANTI_DENGAN_URL_WEBAPP_APPS_SCRIPT_ANDA";
+var ASSET_PATH = "assets/"; // folder gambar denah, relatif terhadap file HTML ini
+
+// Data cadangan (dipakai kalau API_URL belum diisi / gagal fetch) supaya
+// halaman tetap bisa dites tanpa harus Apps Script sudah jadi.
+var FALLBACK = {
+  "ENTR-H5|7193-A": {
+    titik: { id_titik:"ENTR-H5", nama_titik:"Entrance Gate Hall 5" },
+    booth: { kode_booth:"7193-A", hall:"Hall 7", nama_perusahaan:"Elitech" },
+    rute: {
+      waypoints: [{x:141,y:168},{x:141,y:103},{x:847,y:103},{x:847,y:129}],
+      jarak_meter:60, estimasi_menit:2, gambar:"ENTR-H5.png"
+    },
+    langkah: [
+      "Masuk dari Entrance Gate Hall 5, lalu berjalan lurus mengikuti garis kuning",
+      "Terus lurus melewati Hall 6 sampai memasuki Hall 7",
+      "Booth Elitech (7193-A) langsung terlihat di sebelah kanan, dekat Registrasi Hall 7"
+    ]
+  },
+  "ENTR-H9|7193-A": {
+    titik: { id_titik:"ENTR-H9", nama_titik:"Entrance Gate Hall 9" },
+    booth: { kode_booth:"7193-A", hall:"Hall 7", nama_perusahaan:"Elitech" },
+    rute: {
+      waypoints: [{x:670,y:174},{x:670,y:103},{x:82,y:103},{x:82,y:129}],
+      jarak_meter:55, estimasi_menit:2, gambar:"ENTR-H9.png"
+    },
+    langkah: [
+      "Masuk dari Entrance Gate Hall 9, lalu berjalan lurus mengikuti garis kuning",
+      "Terus lurus melewati Hall 8 sampai memasuki Hall 7",
+      "Booth Elitech (7193-A) langsung terlihat di sebelah kiri, dekat Registrasi Hall 7"
+    ]
+  }
+};
+
+function qs(name){
+  var m = new URLSearchParams(window.location.search).get(name);
+  return m;
+}
+
+function render(data){
+  document.getElementById('fairLabel').textContent = "Hospital Expo 2026 \u00b7 " + data.booth.hall;
+  document.getElementById('boothTitle').textContent = "Menuju Booth " + data.booth.nama_perusahaan;
+  document.getElementById('distNum').textContent = data.rute.jarak_meter + " m";
+  document.getElementById('distLbl').textContent = "jalan santai \u2248 " + data.rute.estimasi_menit + " menit";
+  document.getElementById('mapImg').src = ASSET_PATH + data.rute.gambar;
+
+  var wp = data.rute.waypoints;
+  var d = "M " + wp[0].x + " " + wp[0].y;
+  for (var i = 1; i < wp.length; i++) d += " L " + wp[i].x + " " + wp[i].y;
+
+  var start = wp[0];
+  var turn = wp[wp.length - 2];
+  var booth = wp[wp.length - 1];
+  var lastBadgeX = turn.x + (turn.x < booth.x ? 43 : -43);
+
+  var svg = document.getElementById('mapSvg');
+  svg.innerHTML =
+    '<path class="route" d="' + d + '"/>' +
+    '<circle class="you-ring" cx="' + start.x + '" cy="' + start.y + '" r="10" style="transform-origin:' + start.x + 'px ' + start.y + 'px"/>' +
+    '<circle class="you-dot" cx="' + start.x + '" cy="' + start.y + '" r="9"/>' +
+    '<circle class="step-badge" cx="' + start.x + '" cy="' + start.y + '" r="13"/>' +
+    '<text class="step-badge-num" x="' + start.x + '" y="' + start.y + '">1</text>' +
+    '<circle class="step-badge" cx="' + turn.x + '" cy="' + turn.y + '" r="13"/>' +
+    '<text class="step-badge-num" x="' + turn.x + '" y="' + turn.y + '">2</text>' +
+    '<circle class="booth-star" cx="' + booth.x + '" cy="' + booth.y + '" r="10"/>' +
+    '<circle class="step-badge" cx="' + lastBadgeX + '" cy="' + turn.y + '" r="13"/>' +
+    '<text class="step-badge-num" x="' + lastBadgeX + '" y="' + turn.y + '">3</text>';
+
+  var stepsList = document.getElementById('stepsList');
+  stepsList.innerHTML = "";
+  data.langkah.forEach(function(txt, idx){
+    var el = document.createElement('div');
+    el.className = 'step';
+    el.innerHTML = '<div class="step-num">' + (idx+1) + '</div><div class="step-txt">' + txt + '</div>';
+    stepsList.appendChild(el);
+  });
+
+  document.getElementById('loadingMsg').style.display = 'none';
+  document.getElementById('content').style.display = 'block';
+  initZoom();
+}
+
+function showError(msg){
+  document.getElementById('loadingMsg').style.display = 'none';
+  var e = document.getElementById('errorMsg');
+  e.textContent = msg;
+  e.style.display = 'block';
+}
+
+function boot(){
+  var titik = qs('titik') || 'ENTR-H5';
+  var booth = qs('booth') || '7193-A';
+  var key = titik + '|' + booth;
+
+  if (!API_URL || API_URL.indexOf('GANTI_DENGAN') === 0) {
+    if (FALLBACK[key]) { render(FALLBACK[key]); }
+    else { showError('Rute untuk titik "' + titik + '" belum tersedia.'); }
+    return;
+  }
+
+  fetch(API_URL + '?titik=' + encodeURIComponent(titik) + '&booth=' + encodeURIComponent(booth))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data.error) { showError(data.error); return; }
+      render(data);
+    })
+    .catch(function(){
+      if (FALLBACK[key]) { render(FALLBACK[key]); }
+      else { showError('Gagal memuat data rute. Periksa koneksi internet.'); }
+    });
+}
+
+function initZoom(){
+  var wrap = document.getElementById('mapWrap');
+  var stage = document.getElementById('mapStage');
+  var scale = 1, minScale = 1, maxScale = 4;
+  var panX = 0, panY = 0;
+  var lastDist = null, dragging = false, lastX = 0, lastY = 0;
+
+  function apply(){ stage.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + scale + ')'; }
+  function clamp(){
+    var r = wrap.getBoundingClientRect();
+    var maxX = (r.width * (scale - 1)) / 2 + 30;
+    var maxY = (r.height * (scale - 1)) / 2 + 30;
+    panX = Math.max(-maxX, Math.min(maxX, panX));
+    panY = Math.max(-maxY, Math.min(maxY, panY));
+  }
+  function dist(a, b){ return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); }
+  function setScale(s){
+    scale = Math.max(minScale, Math.min(maxScale, s));
+    if (scale === 1) { panX = 0; panY = 0; }
+    clamp(); apply();
+  }
+
+  wrap.addEventListener('touchstart', function(e){
+    if (e.touches.length === 2) { lastDist = dist(e.touches[0], e.touches[1]); }
+    else if (e.touches.length === 1) { dragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; }
+  }, {passive:true});
+
+  wrap.addEventListener('touchmove', function(e){
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      var d = dist(e.touches[0], e.touches[1]);
+      if (lastDist) setScale(scale * (d / lastDist));
+      lastDist = d;
+    } else if (e.touches.length === 1 && dragging && scale > 1) {
+      e.preventDefault();
+      var dx = e.touches[0].clientX - lastX;
+      var dy = e.touches[0].clientY - lastY;
+      panX += dx; panY += dy;
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+      clamp(); apply();
+    }
+  }, {passive:false});
+
+  wrap.addEventListener('touchend', function(e){
+    if (e.touches.length < 2) lastDist = null;
+    if (e.touches.length === 0) dragging = false;
+  });
+
+  document.getElementById('zoomIn').onclick = function(){ setScale(scale + 0.5); };
+  document.getElementById('zoomOut').onclick = function(){ setScale(scale - 0.5); };
+}
+
+boot();
+</script>
+</body>
+</html>
